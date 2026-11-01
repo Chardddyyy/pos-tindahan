@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% block title %}Cash Drawer & Denomination Counter{% endblock %}
+
+{% block content %}
+<div class="drawer-header-card card">
+  <div class="drawer-header-wrap">
+    <div class="drawer-title-block">
+      <h1 class="page-title">💰 Cash Drawer & Register</h1>
+      <p class="muted small">Count register bills & coins, replenish change funds, and audit drawer cash.</p>
+    </div>
+    <div class="drawer-controls-block">
+      <div class="drawer-date-row">
+        <label for="d-date" class="inline-label">Date</label>
+        <input id="d-date" type="date" aria-label="Select Date">
+        <button type="button" class="btn small" id="d-today">Today</button>
+      </div>
+      <button type="button" class="btn primary small drawer-replenish-btn" id="open-replenish-btn">➕ Add Change Fund</button>
+    </div>
+  </div>
+</div>
+
+<!-- Drawer Summary KPI Tiles -->
+<section class="tiles drawer-tiles">
+  <div class="tile good">
+    <span>Expected Cash in Register</span>
+    <strong id="kpi-expected" class="money-huge">₱0.00</strong>
+    <span class="tile-sub muted small" id="kpi-expected-sub">Sales + Added Change</span>
+  </div>
+  <div class="tile">
+    <span>Cash Sales Today</span>
+    <strong id="kpi-sales">₱0.00</strong>
+    <span class="tile-sub muted small" id="kpi-sales-sub">0 transactions</span>
+  </div>
+  <div class="tile">
+    <span>Added Change Fund</span>
+    <strong id="kpi-added-change">₱0.00</strong>
+    <span class="tile-sub muted small" id="kpi-change-breakdown">Bills: ₱0 · Coins: ₱0</span>
+  </div>
+  <div class="tile" id="tile-audit">
+    <span>Latest Physical Count</span>
+    <strong id="kpi-counted">₱0.00</strong>
+    <span class="tile-sub" id="kpi-variance">No count recorded today</span>
+  </div>
+</section>
+
+<div class="two-col drawer-layout">
+  <!-- Left Column: Denomination Calculator -->
+  <section class="card denom-calculator-card">
+    <div class="card-head">
+      <div>
+        <h2>💵 Denomination Counter</h2>
+        <span class="muted small">Count physical paper bills and coins in your cash drawer</span>
+      </div>
+      <button type="button" id="clear-count-btn" class="btn small ghost-danger">Reset Counts</button>
+    </div>
+
+    <!-- Live Computed Totals Bar -->
+    <div class="denom-summary-bar">
+      <div class="denom-summary-item bills">
+        <span class="denom-pill bill-pill">💵 Bills Total</span>
+        <strong id="sum-bills" class="money-big">₱0.00</strong>
+        <span class="muted small" id="count-bills-pcs">0 pcs</span>
+      </div>
+      <div class="denom-summary-divider">+</div>
+      <div class="denom-summary-item coins">
+        <span class="denom-pill coin-pill">🪙 Coins Total</span>
+        <strong id="sum-coins" class="money-big">₱0.00</strong>
+        <span class="muted small" id="count-coins-pcs">0 pcs</span>
+      </div>
+      <div class="denom-summary-divider">=</div>
+      <div class="denom-summary-item total">
+        <span class="denom-pill total-pill">Grand Total</span>
+        <strong id="sum-grand" class="money-huge">₱0.00</strong>
+        <span class="muted small" id="count-total-pcs">0 pcs</span>
+      </div>
+    </div>
+
+    <!-- Paper Bills Table/Grid -->
+    <div class="denom-section">
+      <div class="denom-section-head">
+        <span class="denom-section-badge bills-badge">💵 Paper Bills</span>
+        <span class="muted small">Enter quantity of each bill</span>
+      </div>
+      <div class="denom-grid" id="bills-grid">
+        <!-- Rendered dynamically or standard denominations -->
+      </div>
+    </div>
+
+    <!-- Coins Table/Grid -->
+    <div class="denom-section">
+      <div class="denom-section-head">
+        <span class="denom-section-badge coins-badge">🪙 Coins</span>
+        <span class="muted small">Enter quantity of each coin</span>
+      </div>
+      <div class="denom-grid" id="coins-grid">
+        <!-- Rendered dynamically -->
+      </div>
+    </div>
+
+    <div class="count-submit-bar">
+      <div class="row align-center count-note-row">
+        <input type="text" id="count-note" placeholder="Optional audit note (e.g. End of shift, Morning count)">
+        <button type="button" id="save-count-btn" class="btn primary big">💾 Save Cash Count</button>
+      </div>
+      <p id="count-save-status" class="form-help" hidden></p>
+    </div>
+  </section>
+
+  <!-- Right Column: Quick Replenish & Cash Log -->
+  <div class="drawer-right-col">
+    <!-- Quick Insert Change Fund Card -->
+    <section class="card quick-replenish-card" id="replenish-card">
+      <div class="card-head">
+        <div>
+          <h2>➕ Add Change Fund (Dagdag Panukli)</h2>
+          <span class="muted small">Cashier replenishment when short on change</span>
+        </div>
+      </div>
+
+      <form id="replenish-form" autocomplete="off">
+        <label>Payment / Money Type</label>
+        <div class="segmented-control" id="replenish-category">
+          <label class="seg-btn">
+            <input type="radio" name="replenish-type" value="coins" checked>
+            <span>🪙 Coins (Barya)</span>
+          </label>
+          <label class="seg-btn">
+            <input type="radio" name="replenish-type" value="bills">
+            <span>💵 Paper Bills</span>
+          </label>
+          <label class="seg-btn">
+            <input type="radio" name="replenish-type" value="mixed">
+            <span>🪙+💵 Mixed</span>
+          </label>
+        </div>
+
+        <label for="replenish-amount">Amount Added (₱)</label>
+        <input type="text" id="replenish-amount" inputmode="decimal" placeholder="0.00" required>
+
+        <!-- Quick denomination buttons for replenishment -->
+        <div class="quick-add-chips">
+          <span class="muted small">Quick Add:</span>
+          <button type="button" class="chip-btn" data-add="20">+₱20</button>
+          <button type="button" class="chip-btn" data-add="50">+₱50</button>
+          <button type="button" class="chip-btn" data-add="100">+₱100</button>
+          <button type="button" class="chip-btn" data-add="200">+₱200</button>
+          <button type="button" class="chip-btn" data-add="500">+₱500</button>
+          <button type="button" class="chip-btn" data-add="1000">+₱1,000</button>
+        </div>
+
+        <label for="replenish-note">Note / Purpose <small>(optional)</small></label>
+        <input type="text" id="replenish-note" placeholder="e.g. Added ₱20 coins for change shortage">
+
+        <div class="form-actions">
+          <button type="submit" class="btn primary big" id="replenish-submit">➕ Insert Cash to Register</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Cash Movements Log -->
+    <section class="card">
+      <div class="card-head">
+        <div>
+          <h2>📋 Register Cash Movements</h2>
+          <span class="muted small">Change fund additions, initial float, and withdrawals</span>
+        </div>
+      </div>
+      <p id="movements-empty" class="empty small">No cash movements recorded for this date.</p>
+      <ul id="movements-list" class="movements-list" hidden></ul>
+    </section>
+  </div>
+</div>
+
+<!-- Add Change Modal (Reusable from POS & Drawer) -->
+<div id="quick-replenish-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-replenish-title">
+  <div class="modal-box">
+    <h2 id="modal-replenish-title">➕ Add Change to Drawer</h2>
+    <p class="muted small">Insert money into the register when change is running low for customers.</p>
+
+    <form id="modal-replenish-form" autocomplete="off">
+      <label>Money Type</label>
+      <div class="segmented-control" id="modal-category">
+        <label class="seg-btn">
+          <input type="radio" name="modal-rep-type" value="coins" checked>
+          <span>🪙 Coins (Barya)</span>
+        </label>
+        <label class="seg-btn">
+          <input type="radio" name="modal-rep-type" value="bills">
+          <span>💵 Paper Bills</span>
+        </label>
+        <label class="seg-btn">
+          <input type="radio" name="modal-rep-type" value="mixed">
+          <span>🪙+💵 Mixed</span>
+        </label>
+      </div>
+
+      <label for="modal-rep-amount">Amount Added (₱)</label>
+      <input type="text" id="modal-rep-amount" inputmode="decimal" placeholder="0.00" required>
+
+      <div class="quick-add-chips">
+        <span class="muted small">Quick Add:</span>
+        <button type="button" class="chip-btn" data-add="20">+₱20</button>
+        <button type="button" class="chip-btn" data-add="50">+₱50</button>
+        <button type="button" class="chip-btn" data-add="100">+₱100</button>
+        <button type="button" class="chip-btn" data-add="200">+₱200</button>
+        <button type="button" class="chip-btn" data-add="500">+₱500</button>
+      </div>
+
+      <label for="modal-rep-note">Note <small>(optional)</small></label>
+      <input type="text" id="modal-rep-note" placeholder="e.g. Added barya for checkout change">
+
+      <p id="modal-rep-error" class="form-error" hidden></p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn" data-close-modal>Cancel</button>
+        <button type="submit" class="btn primary big">Insert Cash</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/drawer.js') }}"></script>
+{% endblock %}

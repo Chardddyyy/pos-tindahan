@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Reports{% endblock %}
+
+{% block content %}
+<section class="card">
+  <div class="toolbar">
+    <label for="r-date" class="inline-label">Date</label>
+    <input id="r-date" type="date">
+    <button type="button" class="btn small" id="r-today">Today</button>
+  </div>
+</section>
+
+<section class="tiles">
+  <div class="tile"><span>Sales</span><strong id="r-sales">₱0.00</strong></div>
+  <div class="tile"><span>Cost of Goods</span><strong id="r-cost">₱0.00</strong></div>
+  <div class="tile good"><span>Profit</span><strong id="r-profit">₱0.00</strong></div>
+  <div class="tile"><span>Expected Register Cash</span><strong id="r-drawer">₱0.00</strong></div>
+  <div class="tile"><span>Added Change Fund</span><strong id="r-change-fund">₱0.00</strong></div>
+  <div class="tile"><span>Transactions</span><strong id="r-count">0</strong></div>
+  <div class="tile"><span>Units Sold</span><strong id="r-pieces">0</strong></div>
+  <div class="tile"><span>Voided</span><strong id="r-void">0</strong></div>
+</section>
+
+<div class="two-col">
+  <section class="card">
+    <h2>Best Sellers</h2>
+    <p id="top-empty" class="empty small">No sales recorded for this date.</p>
+    <ol id="top-list" class="top-list"></ol>
+  </section>
+
+  <section class="card">
+    <h2>Transactions</h2>
+    <p id="sales-empty" class="empty small">No sales recorded for this date.</p>
+    <ul id="sales-list" class="sales-list"></ul>
+  </section>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/reports.js') }}"></script>
+{% endblock %}

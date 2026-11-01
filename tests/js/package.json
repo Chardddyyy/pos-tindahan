@@ -1,0 +1,11 @@
+{
+  "name": "tindahan-pos-browser-tests",
+  "private": true,
+  "description": "Opsyonal: pagsubok sa JavaScript ng browser (scanner logic at buong UI).",
+  "scripts": {
+    "test": "node scanner_logic.test.js && node ui_flow.test.js"
+  },
+  "devDependencies": {
+    "jsdom": "^24.0.0"
+  }
+}

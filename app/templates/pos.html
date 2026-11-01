@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block title %}Sales{% endblock %}
+
+{% block content %}
+<div class="pos-grid">
+  <div class="pos-left">
+    {% include "_camera.html" %}
+
+    <section class="card">
+      <form id="scan-form" autocomplete="off">
+        <label for="scan-input">Barcode or item name</label>
+        <div class="row">
+          <input id="scan-input" type="text" inputmode="text" enterkeyhint="done"
+                 placeholder="Scan or type here, then press Enter" autofocus>
+          <button class="btn primary" type="submit">Add</button>
+        </div>
+      </form>
+      <ul id="suggestions" class="suggestions" hidden></ul>
+    </section>
+
+    <section class="card last-scan" id="last-scan" hidden aria-live="polite">
+      <div class="muted small">Last scanned item</div>
+      <div class="last-name" id="last-name"></div>
+      <div class="last-meta">
+        <span class="last-price" id="last-price"></span>
+        <span class="muted" id="last-info"></span>
+      </div>
+    </section>
+  </div>
+
+  <div class="pos-right">
+    <section class="card cart-card">
+      <div class="card-head">
+        <h2>Cart</h2>
+        <button type="button" id="clear-cart" class="btn small ghost-danger" hidden>Clear all</button>
+      </div>
+
+      <p id="cart-empty" class="empty">Cart is empty. Scan a barcode to start.</p>
+      <ul id="cart-list" class="cart-list" hidden></ul>
+
+      <div class="cart-total">
+        <div>
+          <div class="muted small">Total amount due</div>
+          <div class="muted small" id="cart-count">0 items</div>
+        </div>
+        <strong id="cart-total" class="money-big">₱0.00</strong>
+      </div>
+      <button type="button" id="pay-btn" class="btn big primary" disabled>Checkout <kbd>F2</kbd></button>
+    </section>
+  </div>
+</div>
+
+<!-- Checkout Modal -->
+<div id="pay-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="pay-title">
+  <div class="modal-box">
+    <div id="pay-step">
+      <h2 id="pay-title">Checkout</h2>
+      <div class="pay-total">
+        <span class="muted">Total amount due</span>
+        <strong id="pay-total" class="money-huge">₱0.00</strong>
+        <span class="muted small" id="pay-count"></span>
+      </div>
+
+      <label for="pay-cash">Cash tendered by customer</label>
+      <input id="pay-cash" type="text" inputmode="decimal" autocomplete="off" placeholder="0.00" data-autofocus>
+      <div class="quick-cash" id="quick-cash"></div>
+
+      <div class="change-box" id="change-box">
+        <span id="change-label">Change</span>
+        <strong id="change-amount">₱0.00</strong>
+      </div>
+
+      <!-- Suggested Change Denomination Breakdown -->
+      <div id="change-breakdown-wrapper" class="change-breakdown-wrapper" hidden>
+        <div class="change-breakdown-title">
+          <span class="muted small">Suggested Bills & Coins:</span>
+        </div>
+        <div id="change-breakdown-chips" class="change-breakdown-chips"></div>
+      </div>
+
+      <!-- Short on Change? Quick Replenish Trigger -->
+      <div class="short-change-banner" id="short-change-banner" hidden>
+        <div class="short-change-text">
+          <span class="short-change-icon">⚠️</span>
+          <span>Short on change? (Kulang ang panukli?)</span>
+        </div>
+        <button type="button" id="pos-add-change-btn" class="btn small primary">+ Insert Change</button>
+      </div>
+
+      <!-- In-Modal Change Replenishment Sub-Panel (collapsible) -->
+      <div id="pos-replenish-panel" class="pos-replenish-panel" hidden>
+        <div class="card-head">
+          <strong class="small">➕ Add Change to Drawer (Dagdag Panukli)</strong>
+          <button type="button" id="pos-replenish-close" class="btn small ghost">Cancel</button>
+        </div>
+        <div class="segmented-control small" id="pos-rep-category">
+          <label class="seg-btn">
+            <input type="radio" name="pos-rep-type" value="coins" checked>
+            <span>🪙 Coins</span>
+          </label>
+          <label class="seg-btn">
+            <input type="radio" name="pos-rep-type" value="bills">
+            <span>💵 Paper Bills</span>
+          </label>
+          <label class="seg-btn">
+            <input type="radio" name="pos-rep-type" value="mixed">
+            <span>Mixed</span>
+          </label>
+        </div>
+        <div class="row align-center" style="margin-top: .5rem; gap: .5rem;">
+          <input type="text" id="pos-rep-amount" inputmode="decimal" placeholder="Amount (₱)">
+          <button type="button" id="pos-rep-submit" class="btn primary">Add</button>
+        </div>
+        <div class="quick-add-chips small">
+          <button type="button" class="chip-btn small" data-pos-add="20">+₱20</button>
+          <button type="button" class="chip-btn small" data-pos-add="50">+₱50</button>
+          <button type="button" class="chip-btn small" data-pos-add="100">+₱100</button>
+          <button type="button" class="chip-btn small" data-pos-add="200">+₱200</button>
+          <button type="button" class="chip-btn small" data-pos-add="500">+₱500</button>
+        </div>
+        <p id="pos-rep-msg" class="form-help" hidden></p>
+      </div>
+
+      <p id="pay-error" class="form-error" hidden></p>
+
+      <div class="modal-actions">
+        <button type="button" class="btn" data-close-modal>Back</button>
+        <button type="button" id="pay-confirm" class="btn primary big">Complete Sale</button>
+      </div>
+    </div>
+
+    <div id="done-step" hidden>
+      <div class="done-icon">✔</div>
+      <h2>Sale completed!</h2>
+      <div class="pay-total">
+        <span class="muted" id="done-receipt"></span>
+        <strong id="done-total" class="money-huge">₱0.00</strong>
+      </div>
+      <div class="change-box ok">
+        <span>Change</span>
+        <strong id="done-change">₱0.00</strong>
+      </div>
+      <div class="modal-actions">
+        <button type="button" id="new-sale" class="btn primary big" data-autofocus>New Sale</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/html5-qrcode.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scanner.js') }}"></script>
+<script src="{{ url_for('static', filename='js/pos.js') }}"></script>
+{% endblock %}

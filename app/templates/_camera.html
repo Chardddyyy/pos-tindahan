@@ -1,0 +1,16 @@
+<section class="card cam-card" id="cam-panel">
+  <div class="card-head">
+    <h2>📷 Camera Scanner</h2>
+    <div class="cam-controls">
+      <select id="cam-select" hidden aria-label="Select camera"></select>
+      <button type="button" id="cam-torch" class="btn small" hidden title="Flashlight">🔦</button>
+      <button type="button" id="cam-toggle" class="btn small primary">Start Camera</button>
+    </div>
+  </div>
+  <div id="reader-wrap" class="reader-wrap" hidden>
+    <div id="reader"></div>
+    <div id="reader-flash" class="reader-flash"></div>
+  </div>
+  <p id="cam-status" class="cam-status muted" role="status"></p>
+</section>
+

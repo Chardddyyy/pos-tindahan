@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Inventory{% endblock %}
+
+{% block content %}
+<section class="tiles" id="inv-tiles">
+  <div class="tile"><span>Total Items</span><strong id="t-items">0</strong></div>
+  <div class="tile"><span>Total Units</span><strong id="t-pieces">0</strong></div>
+  <div class="tile"><span>Cost Value</span><strong id="t-cost">₱0.00</strong></div>
+  <div class="tile"><span>Retail Value</span><strong id="t-sales">₱0.00</strong></div>
+  <button type="button" class="tile warn tile-btn" id="t-low-btn"><span>Low Stock</span><strong id="t-low">0</strong></button>
+  <button type="button" class="tile danger tile-btn" id="t-out-btn"><span>Out of Stock</span><strong id="t-out">0</strong></button>
+</section>
+
+<section class="card">
+  <div class="toolbar">
+    <input id="inv-search" type="search" placeholder="Search item name or barcode..." autocomplete="off">
+    <label class="check"><input type="checkbox" id="inv-low"> Low / out of stock only</label>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table" id="inv-table">
+      <thead>
+        <tr>
+          <th>Item</th>
+          <th class="num">Stock</th>
+          <th class="num hide-sm">Cost</th>
+          <th class="num hide-sm">Markup</th>
+          <th class="num">Price</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="inv-body"></tbody>
+    </table>
+  </div>
+  <p id="inv-empty" class="empty" hidden>No items found.</p>
+</section>
+
+<!-- Edit Item Modal -->
+<div id="edit-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="edit-title">
+  <form class="modal-box" id="edit-form" autocomplete="off">
+    <h2 id="edit-title">Edit Item</h2>
+    <p class="muted small" id="edit-barcode"></p>
+
+    <label for="e-name">Item Name</label>
+    <input id="e-name" type="text" maxlength="120" data-autofocus>
+
+    <div class="grid-3">
+      <div>
+        <label for="e-cost">Cost</label>
+        <div class="input-prefix"><span>₱</span><input id="e-cost" type="text" inputmode="decimal"></div>
+      </div>
+      <div>
+        <label for="e-markup">Markup %</label>
+        <div class="input-suffix"><input id="e-markup" type="text" inputmode="decimal"><span>%</span></div>
+      </div>
+      <div>
+        <label for="e-price">Selling Price</label>
+        <div class="input-prefix"><span>₱</span><input id="e-price" type="text" inputmode="decimal"></div>
+      </div>
+    </div>
+    <p class="muted small">Changing cost or markup % will recalculate the selling price. You can also manually enter a custom price.</p>
+
+    <label for="e-low">Low stock alert threshold</label>
+    <input id="e-low" type="text" inputmode="numeric">
+
+    <p id="edit-error" class="form-error" hidden></p>
+    <div class="modal-actions spread">
+      <button type="button" id="e-delete" class="btn ghost-danger">Delete</button>
+      <span>
+        <button type="button" class="btn" data-close-modal>Cancel</button>
+        <button type="submit" class="btn primary">Save</button>
+      </span>
+    </div>
+  </form>
+</div>
+
+<!-- Adjust Stock Modal -->
+<div id="adjust-modal" class="modal" hidden role="dialog" aria-modal="true" aria-labelledby="adjust-title">
+  <form class="modal-box" id="adjust-form" autocomplete="off">
+    <h2 id="adjust-title">Adjust Stock Count</h2>
+    <p class="muted" id="adjust-name"></p>
+    <p class="muted small">Use this after physical stock counting, or to account for damage/loss.</p>
+
+    <label for="a-stock">Actual count now</label>
+    <input id="a-stock" type="text" inputmode="numeric" data-autofocus>
+    <label for="a-note">Reason <small>(optional)</small></label>
+    <input id="a-note" type="text" maxlength="120" placeholder="e.g. damaged, lost, inventory count error">
+
+    <p id="adjust-error" class="form-error" hidden></p>
+    <div class="modal-actions">
+      <button type="button" class="btn" data-close-modal>Cancel</button>
+      <button type="submit" class="btn primary">Save</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/inventory.js') }}"></script>
+{% endblock %}

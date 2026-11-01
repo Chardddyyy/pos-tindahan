@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Stock In{% endblock %}
+
+{% block content %}
+<div class="stock-grid" data-default-markup="{{ default_markup }}">
+  <div class="stock-left">
+    {% include "_camera.html" %}
+
+    <section class="card">
+      <h2>Recently Stocked Items</h2>
+      <p id="recent-empty" class="empty small">No recent items. Items you add today will appear here.</p>
+      <ul id="recent-list" class="recent-list"></ul>
+    </section>
+  </div>
+
+  <div class="stock-right">
+    <form id="stock-form" class="card" autocomplete="off" novalidate>
+      <h2>Add Stock</h2>
+
+      <label for="f-barcode">Barcode</label>
+      <div class="row">
+        <input id="f-barcode" type="text" inputmode="text" placeholder="Scan or type barcode" autofocus>
+        <button type="button" id="f-lookup" class="btn">Search</button>
+      </div>
+      <p id="item-status" class="item-status muted">Scan the item's barcode to begin.</p>
+
+      <label for="f-name">Item Name</label>
+      <input id="f-name" type="text" placeholder="e.g. Lucky Me Pancit Canton Chilimansi 60g" maxlength="120">
+
+      <div class="grid-3">
+        <div>
+          <label for="f-cost">Purchase Cost <small>(per unit)</small></label>
+          <div class="input-prefix"><span>₱</span>
+            <input id="f-cost" type="text" inputmode="decimal" placeholder="0.00">
+          </div>
+        </div>
+        <div>
+          <label for="f-markup">Markup <small>(%)</small></label>
+          <div class="input-suffix">
+            <input id="f-markup" type="text" inputmode="decimal" value="{{ default_markup }}">
+            <span>%</span>
+          </div>
+        </div>
+        <div>
+          <label for="f-qty">Quantity</label>
+          <input id="f-qty" type="text" inputmode="numeric" value="1">
+        </div>
+      </div>
+
+      <div class="calc" id="calc" aria-live="polite">
+        <div class="calc-main">
+          <span class="muted">Selling price (per unit)</span>
+          <strong id="c-price" class="money-big">—</strong>
+          <span class="muted small" id="c-profit-each"></span>
+        </div>
+        <dl class="calc-totals">
+          <div><dt>Total cost</dt><dd id="c-total-cost">—</dd></div>
+          <div><dt>Total sales when sold out</dt><dd id="c-total-sales">—</dd></div>
+          <div class="hl"><dt>Total profit</dt><dd id="c-total-profit">—</dd></div>
+        </dl>
+      </div>
+
+      <p id="form-error" class="form-error" hidden></p>
+      <button type="submit" id="f-save" class="btn primary big">Add to Stock</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
+
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/html5-qrcode.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/scanner.js') }}"></script>
+<script src="{{ url_for('static', filename='js/stock_in.js') }}"></script>
+{% endblock %}

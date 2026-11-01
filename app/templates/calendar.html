@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% block title %}Earnings Calendar{% endblock %}
+
+{% block content %}
+<div class="calendar-header-card card">
+  <div class="calendar-toolbar">
+    <div class="calendar-title-box">
+      <h1 class="page-title">📅 Earnings Calendar</h1>
+      <p class="muted small">View daily and monthly revenue & profit. Future days are blocked.</p>
+    </div>
+    <div class="calendar-nav-controls">
+      <button type="button" class="btn small" id="cal-prev-month" aria-label="Previous Month">‹ Prev Month</button>
+      <strong id="cal-month-title" class="cal-current-label">November 2026</strong>
+      <button type="button" class="btn small" id="cal-next-month" aria-label="Next Month">Next Month ›</button>
+      <button type="button" class="btn small primary" id="cal-this-month">Today / This Month</button>
+    </div>
+  </div>
+</div>
+
+<!-- Monthly Summary Tiles (Pang Isang Buwan) -->
+<section class="tiles cal-month-tiles">
+  <div class="tile">
+    <span>Month Total Sales</span>
+    <strong id="cal-month-sales" class="money-huge">₱0.00</strong>
+    <span class="tile-sub muted small" id="cal-month-sales-sub">Pang buong buwan</span>
+  </div>
+  <div class="tile good">
+    <span>Month Net Profit</span>
+    <strong id="cal-month-profit" class="money-huge">₱0.00</strong>
+    <span class="tile-sub ok" id="cal-month-profit-sub">Kita sa buwang ito</span>
+  </div>
+  <div class="tile">
+    <span>Cost of Goods</span>
+    <strong id="cal-month-cost">₱0.00</strong>
+    <span class="tile-sub muted small">Puhunan sa mga nabenta</span>
+  </div>
+  <div class="tile">
+    <span>Total Transactions</span>
+    <strong id="cal-month-orders">0</strong>
+    <span class="tile-sub muted small" id="cal-month-units">0 units sold</span>
+  </div>
+</section>
+
+<!-- Calendar Grid Card -->
+<section class="card cal-grid-card">
+  <div class="cal-grid-head">
+    <div class="cal-legend">
+      <span class="legend-item"><span class="legend-dot with-sales"></span> Has Sales</span>
+      <span class="legend-item"><span class="legend-dot is-today"></span> Today</span>
+      <span class="legend-item"><span class="legend-dot is-future"></span> Future (Blocked 🔒)</span>
+    </div>
+    <span class="muted small">Tap any past or present day to view earnings details</span>
+  </div>
+
+  <!-- Days of Week Header -->
+  <div class="cal-weekdays">
+    <div>Sun</div>
+    <div>Mon</div>
+    <div>Tue</div>
+    <div>Wed</div>
+    <div>Thu</div>
+    <div>Fri</div>
+    <div>Sat</div>
+  </div>
+
+  <!-- Dynamic Days Grid -->
+  <div id="cal-days-grid" class="cal-days-grid" aria-live="polite">
+    <!-- Rendered via JavaScript -->
+  </div>
+</section>
+
+<!-- Selected Day Earnings Breakdown (Kung magkano kinita sa araw na yun) -->
+<section class="card cal-day-card" id="cal-day-card">
+  <div class="card-head">
+    <div>
+      <h2 id="cal-day-title">📅 Daily Earnings Breakdown</h2>
+      <span class="muted small" id="cal-day-subtitle">Select a day on the calendar to see details</span>
+    </div>
+    <a href="#" id="cal-day-report-link" class="btn small">View in Reports ›</a>
+  </div>
+
+  <div class="tiles cal-day-tiles">
+    <div class="tile">
+      <span>Daily Sales</span>
+      <strong id="cal-day-sales" class="money-big">₱0.00</strong>
+    </div>
+    <div class="tile good">
+      <span>Daily Profit</span>
+      <strong id="cal-day-profit" class="money-big">₱0.00</strong>
+    </div>
+    <div class="tile">
+      <span>Transactions</span>
+      <strong id="cal-day-count">0</strong>
+    </div>
+    <div class="tile">
+      <span>Units Sold</span>
+      <strong id="cal-day-units">0</strong>
+    </div>
+  </div>
+
+  <div class="cal-day-items-section">
+    <h3 class="small muted" style="margin: .75rem 0 .4rem;">Items Sold on this Day:</h3>
+    <p id="cal-day-empty" class="empty small">No items sold on this day.</p>
+    <ul id="cal-day-items" class="cal-items-list" hidden></ul>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/calendar.js') }}"></script>
+{% endblock %}
